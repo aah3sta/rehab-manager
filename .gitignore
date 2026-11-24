@@ -1,0 +1,9 @@
+#Compiled Java files
+*.class
+out/
+
+#VS Code personal settings
+.vscode/
+
+#Temporary files
+*.log
