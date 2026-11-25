@@ -118,8 +118,8 @@ public class StaffMenu {
         }
         int linked = staffDAO.countLinkedRecords(id);
         if (linked > 0) {
-            System.out.println("Cannot remove: this staff member conducted " + linked
-                    + " medical assessment(s). Those records must keep their author.");
+            System.out.println("Cannot remove: this staff member authored " + linked
+                    + " clinical record(s). Those records must keep their author.");
             return;
         }
         System.out.println(s.getDetails());

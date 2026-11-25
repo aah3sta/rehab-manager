@@ -318,9 +318,7 @@ public class AssessmentPanel extends JPanel implements Refreshable {
 
         Staff editor = askWhoIsEditing();
         if (editor == null) return;
-        boolean isAuthor = editor.getId() == a.getStaffId();
-        boolean isDoctor = "Doctor".equalsIgnoreCase(editor.getRole());
-        if (!isAuthor && !isDoctor) {
+        if (!util.Authorization.canEdit(editor, a.getStaffId())) {
             UiHelper.showInfo(this, "Not authorized",
                     "Only " + staffName(a.getStaffId()) + " (who conducted this assessment) or a Doctor can update it.");
             return;

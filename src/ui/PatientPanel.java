@@ -204,7 +204,7 @@ public class PatientPanel extends JPanel implements Refreshable {
         UiHelper.runAsync(this, () -> patientDAO.countLinkedRecords(p.getId()), linked -> {
             if (linked > 0) {
                 UiHelper.showInfo(this, "Can't delete patient",
-                        p.getFullName() + " has " + linked + " medical assessment(s) on record.\n"
+                        p.getFullName() + " has " + linked + " clinical record(s) on record\n(assessments, vitals, therapy, medication or plans).\n"
                                 + "Clinical history must be kept, so this patient can't be deleted.");
                 return;
             }

@@ -239,7 +239,7 @@ public class StaffPanel extends JPanel implements Refreshable {
         UiHelper.runAsync(this, () -> staffDAO.countLinkedRecords(s.getId()), linked -> {
             if (linked > 0) {
                 UiHelper.showInfo(this, "Can't remove staff member",
-                        s.getFullName() + " conducted " + linked + " medical assessment(s).\n"
+                        s.getFullName() + " authored " + linked + " clinical record(s).\n"
                                 + "Those records must keep their author, so this staff member can't be removed.");
                 return;
             }

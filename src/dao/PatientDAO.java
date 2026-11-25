@@ -90,12 +90,20 @@ public class PatientDAO {
         }
     }
 
-    /** Number of medical assessments linked to this patient. */
+    /**
+     * Number of clinical records linked to this patient across all modules
+     * (assessments, vitals, therapy sessions, medication, discharge plans).
+     * Lab tests hang off assessments, so they are covered too.
+     */
     public int countLinkedRecords(long patientId) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM MEDICAL_ASSESSMENT WHERE PATIENT_ID = ?";
+        String sql = "SELECT (SELECT COUNT(*) FROM MEDICAL_ASSESSMENT WHERE PATIENT_ID = ?)"
+                + " + (SELECT COUNT(*) FROM VITALS WHERE PATIENT_ID = ?)"
+                + " + (SELECT COUNT(*) FROM THERAPY_SESSION WHERE PATIENT_ID = ?)"
+                + " + (SELECT COUNT(*) FROM MEDICATION_RECORD WHERE PATIENT_ID = ?)"
+                + " + (SELECT COUNT(*) FROM DISCHARGE_AFTERCARE_PLAN WHERE PATIENT_ID = ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setLong(1, patientId);
+            for (int i = 1; i <= 5; i++) stmt.setLong(i, patientId);
             try (ResultSet rs = stmt.executeQuery()) {
                 return rs.next() ? rs.getInt(1) : 0;
             }

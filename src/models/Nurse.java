@@ -6,10 +6,13 @@ public class Nurse extends Staff {
     }
 
     @Override
-    public void performDuties() {
-        System.out.println("Nurse " + getFullName() + " monitors patient vitals and administers medication.");
+    public String getDutiesDescription() {
+        return "Nurse " + getFullName() + " monitors patient vitals and administers medication.";
     }
 
     @Override
     public boolean canConductAssessment() { return true; }
+
+    @Override public boolean canRecordVitals() { return true; }
+    @Override public boolean canManageMedication() { return true; }
 }

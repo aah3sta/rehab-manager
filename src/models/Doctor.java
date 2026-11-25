@@ -6,10 +6,14 @@ public class Doctor extends Staff {
     }
 
     @Override
-    public void performDuties() {
-        System.out.println("Dr. " + getFullName() + " conducts medical assessments and diagnoses.");
+    public String getDutiesDescription() {
+        return "Dr. " + getFullName() + " conducts medical assessments and diagnoses.";
     }
 
     @Override
     public boolean canConductAssessment() { return true; }
+
+    @Override public boolean canRecordVitals() { return true; }
+    @Override public boolean canManageMedication() { return true; }
+    @Override public boolean isDoctor() { return true; }
 }

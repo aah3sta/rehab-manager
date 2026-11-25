@@ -3,8 +3,6 @@ package dao;
 import database.DatabaseConnection;
 import models.*;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,24 +18,6 @@ public class StaffDAO {
             case "nurse":     return new Nurse(id, name, contact);
             default:          return new Staff(id, name, contact, role);
         }
-    }
-
-    public List<String> getDutiesReport() throws SQLException {
-        List<String> lines = new ArrayList<>();
-        for (Staff s : getAll()) {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            PrintStream oldOut = System.out;
-            try (PrintStream ps = new PrintStream(baos)) {
-                System.setOut(ps);
-                s.performDuties();
-            } finally {
-                System.setOut(oldOut);
-            }
-            String dutyOutput = baos.toString().trim();
-            lines.add(String.format("#%d %s (%s) -> %s",
-                    s.getId(), s.getFullName(), s.getRole(), dutyOutput));
-        }
-        return lines;
     }
 
     public long register(Staff s) throws SQLException {
@@ -133,12 +113,15 @@ public class StaffDAO {
         }
     }
 
-    /** Number of medical assessments this staff member conducted. */
+    /** Number of clinical records this staff member authored, across all modules. */
     public int countLinkedRecords(long staffId) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM MEDICAL_ASSESSMENT WHERE STAFF_ID = ?";
+        String sql = "SELECT (SELECT COUNT(*) FROM MEDICAL_ASSESSMENT WHERE STAFF_ID = ?)"
+                + " + (SELECT COUNT(*) FROM VITALS WHERE STAFF_ID = ?)"
+                + " + (SELECT COUNT(*) FROM THERAPY_SESSION WHERE STAFF_ID = ?)"
+                + " + (SELECT COUNT(*) FROM MEDICATION_RECORD WHERE STAFF_ID = ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setLong(1, staffId);
+            for (int i = 1; i <= 4; i++) stmt.setLong(i, staffId);
             try (ResultSet rs = stmt.executeQuery()) {
                 return rs.next() ? rs.getInt(1) : 0;
             }
@@ -155,6 +138,16 @@ public class StaffDAO {
         for (Staff member : staffArray) {
             member.performDuties();
         }
+    }
+
+    /** Same array + polymorphism idea, returned as text for the GUI. */
+    public List<String> getDutiesReport() throws SQLException {
+        Staff[] staffArray = getAll().toArray(new Staff[0]);
+        List<String> lines = new ArrayList<>();
+        for (Staff member : staffArray) {
+            lines.add(member.getDutiesDescription());
+        }
+        return lines;
     }
 
     private Staff map(ResultSet rs) throws SQLException {

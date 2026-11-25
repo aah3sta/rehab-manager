@@ -123,7 +123,7 @@ public class PatientMenu {
         int linked = patientDAO.countLinkedRecords(id);
         if (linked > 0) {
             System.out.println("Cannot delete: this patient has " + linked
-                    + " medical assessment(s) on record. Clinical history must be kept.");
+                    + " clinical record(s) (assessments, vitals, therapy, medication or plans). Clinical history must be kept.");
             return;
         }
         System.out.println(p.getDetails());

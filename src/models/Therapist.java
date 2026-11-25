@@ -6,10 +6,12 @@ public class Therapist extends Staff {
     }
 
     @Override
-    public void performDuties() {
-        System.out.println("Therapist " + getFullName() + " conducts rehabilitation therapy sessions.");
+    public String getDutiesDescription() {
+        return "Therapist " + getFullName() + " conducts rehabilitation therapy sessions.";
     }
 
     @Override
     public boolean canConductAssessment() { return true; }
+
+    @Override public boolean canConductTherapy() { return true; }
 }

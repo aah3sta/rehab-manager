@@ -26,14 +26,30 @@ public class Staff extends Person {
     }
 
     /** Overridden by Doctor, Therapist and Nurse (runtime polymorphism). */
-    public void performDuties() {
-        System.out.println(getFullName() + " (" + role + ") performs general centre operations.");
+    public String getDutiesDescription() {
+        return getFullName() + " (" + role + ") performs general centre operations.";
     }
 
-    /** Only clinical staff may conduct medical assessments. */
-    public boolean canConductAssessment() {
-        return false;
+    /** Console version prints; the GUI shows getDutiesDescription() in a dialog. */
+    public void performDuties() {
+        System.out.println(getDutiesDescription());
     }
+
+    // ---- What each role is allowed to do (overridden by subclasses) ----
+
+    /** Doctor, Therapist, Nurse. */
+    public boolean canConductAssessment() { return false; }
+
+    /** Doctor, Nurse. */
+    public boolean canRecordVitals() { return false; }
+
+    /** Therapist. */
+    public boolean canConductTherapy() { return false; }
+
+    /** Doctor, Nurse. */
+    public boolean canManageMedication() { return false; }
+
+    public boolean isDoctor() { return false; }
 
     @Override
     public String getDetails() {
