@@ -35,6 +35,31 @@ public class MedicalAssessmentDAO {
         return -1;
     }
 
+    public List<MedicalAssessment> search(Long patientId, Long staffId, LocalDate date) throws SQLException {
+        StringBuilder sql = new StringBuilder(
+                "SELECT ASSESSMENT_ID, PATIENT_ID, STAFF_ID, ASSESSMENT_DATE, "
+                + "MEDICAL_HISTORY, ASSESSMENT_NOTES, DIAGNOSIS "
+                + "FROM MEDICAL_ASSESSMENT WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+
+        if (patientId != null) {
+            sql.append(" AND PATIENT_ID = ?");
+            params.add(patientId);
+        }
+        if (staffId != null) {
+            sql.append(" AND STAFF_ID = ?");
+            params.add(staffId);
+        }
+        if (date != null) {
+            sql.append(" AND ASSESSMENT_DATE >= ? AND ASSESSMENT_DATE < ?");
+            params.add(Timestamp.valueOf(date.atStartOfDay()));
+            params.add(Timestamp.valueOf(date.plusDays(1).atStartOfDay()));
+        }
+        sql.append(" ORDER BY ASSESSMENT_DATE DESC, ASSESSMENT_ID DESC");
+
+        return queryList(sql.toString(), params.toArray());
+    }
+
     public MedicalAssessment findById(long id) throws SQLException {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(

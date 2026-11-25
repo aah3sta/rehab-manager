@@ -3,6 +3,8 @@ package dao;
 import database.DatabaseConnection;
 import models.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,24 @@ public class StaffDAO {
             case "nurse":     return new Nurse(id, name, contact);
             default:          return new Staff(id, name, contact, role);
         }
+    }
+
+    public List<String> getDutiesReport() throws SQLException {
+        List<String> lines = new ArrayList<>();
+        for (Staff s : getAll()) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PrintStream oldOut = System.out;
+            try (PrintStream ps = new PrintStream(baos)) {
+                System.setOut(ps);
+                s.performDuties();
+            } finally {
+                System.setOut(oldOut);
+            }
+            String dutyOutput = baos.toString().trim();
+            lines.add(String.format("#%d %s (%s) -> %s",
+                    s.getId(), s.getFullName(), s.getRole(), dutyOutput));
+        }
+        return lines;
     }
 
     public long register(Staff s) throws SQLException {
