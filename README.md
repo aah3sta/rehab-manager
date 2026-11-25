@@ -1,215 +1,126 @@
-# Rehabilitation Centre Management System (RCMS)
+# Rehabilitation Center Management System (All 8 modules)
 
-## 1. Project Overview
+Core Java + JDBC + MySQL, console application.
 
-The **Rehabilitation Centre Management System (RCMS)** is a Java-based, console-driven application designed to simplify and centralise the management of operations within a rehabilitation centre.
-
-The system provides a structured way to manage patient information, staff records, medical assessments, laboratory tests, vital signs, therapy sessions, medication records, and patient discharge and aftercare plans.
-
-The project aims to demonstrate the practical application of Object-Oriented Programming (OOP) principles in solving a real-world problem while providing an organised and efficient approach to rehabilitation centre management.
-
-The application will allow authorised users to interact with different management modules through a menu-driven terminal interface, with MySQL serving as the central database for persistent data storage.
-
-## 2. Project Objectives
-
-The main objectives of the project are to:
-
-- Develop a functional rehabilitation centre management application using Java.
-- Apply fundamental Object-Oriented Programming principles in a real-world scenario.
-- Centralise patient and staff records for easier management and retrieval.
-- Provide structured management of medical assessments, laboratory tests, and patient vitals.
-- Maintain records of therapy sessions and medication.
-- Facilitate patient discharge planning and aftercare follow-ups.
-- Implement database connectivity to ensure information is stored and retrieved reliably.
-
-## 3. System Modules and Features
-
-The system is divided into eight main modules, each responsible for a specific area of rehabilitation centre operations.
-
-### 3.1 Patient Management
-
-Responsible for managing patient information throughout their interaction with the rehabilitation centre.
-
-Features:
-- Register new patients.
-- View all registered patients.
-- Search patients by ID, name, or contact.
-- Update patient information.
-- Delete patient records when permitted.
-
-### 3.2 Staff Management
-
-Handles the registration and management of rehabilitation centre personnel.
-
-Features:
-- Register staff members and record their roles and contact information.
-- View all registered staff.
-- Search staff by ID, name, or contact.
-- Filter staff members by role.
-- Update or remove staff records when permitted.
-
-### 3.3 Medical Assessment
-
-Manages medical assessments conducted on registered patients.
-
-Features:
-- Record medical assessments and associate them with the relevant patient and staff member.
-- View assessments by assessment ID.
-- Retrieve all assessments belonging to a particular patient.
-- Search assessments by date or staff member.
-- Update assessment records when authorised.
-
-### 3.4 Laboratory Test Management
-
-Handles laboratory tests associated with medical assessments.
-
-Features:
-- Record laboratory tests under existing medical assessments.
-- Retrieve laboratory tests by test ID.
-- View all tests associated with a particular assessment.
-- Retrieve a patient's laboratory test history through their assessments.
-- Update test results and notes when authorised.
-
-### 3.5 Vitals Management
-
-Maintains records of patients' vital signs to support monitoring and assessment.
-
-Features:
-- Record patient temperature, pulse rate, breathing rate, glucose levels, and blood pressure.
-- Retrieve vitals records by ID.
-- View all recorded vitals for a patient.
-- Retrieve the latest recorded vitals.
-- Search records by date or staff member.
-
-### 3.6 Therapy Session Management
-
-Manages therapy activities and tracks patient participation and progress.
-
-Features:
-- Record therapy sessions, including date, duration, notes, patient, and responsible staff member.
-- Retrieve individual sessions by session ID.
-- View a patient's therapy history.
-- Search sessions by staff member or date.
-- Calculate the total recorded therapy time for a patient.
-
-### 3.7 Medication Management
-
-Maintains medication records for patients receiving treatment at the centre.
-
-Features:
-- Record medication name, dosage, frequency, instructions, patient, and responsible staff member.
-- Retrieve medication records by ID.
-- View a patient's medication history.
-- Search medication records by medication name or staff member.
-- Update medication details and instructions when authorised.
-
-### 3.8 Discharge and Aftercare Management
-
-Handles patient discharge planning and continued recovery monitoring.
-
-Features:
-- Create discharge and aftercare plans for patients.
-- Retrieve aftercare plans by plan ID or patient.
-- Record and update recovery goals and aftercare instructions.
-- Record and update discharge and follow-up dates.
-- View upcoming follow-up dates and emergency relapse contacts.
-
-## 4. Technologies and Tools
-
-The project will use the following technologies:
-
-| Technology | Purpose |
-|---|---|
-| Java (Core Java) | Main programming language and application logic |
-| MySQL | Relational database for persistent data storage |
-| JDBC | Connecting the Java application to MySQL |
-| VS Code | Integrated Development Environment (IDE) |
-| MySQL Workbench | Database creation, administration, and query management |
-| Git | Version control |
-| GitHub | Collaborative development and source code management |
-
-### Frameworks
-
-The initial implementation will use Core Java and JDBC without an additional application framework. This keeps the project focused on demonstrating fundamental Java and OOP concepts.
-
-### Application Interface
-
-The application will use a **console-based (CLI) interface**.
-
-Users will interact with the system through text-based menus, selecting operations and providing the required information through the terminal.
-
-### Proposed Project Structure
-
-```text
-RehabilitationManagementSystem/
-│
-├── src/
-│   ├── main/
-│   │   └── Main.java
-│   │
-│   ├── models/
-│   ├── dao/
-│   ├── services/
-│   ├── menus/
-│   └── database/
-│       └── DatabaseConnection.java
-│
-├── database/
-│   └── schema.sql
-│
-├── README.md
-└── .gitignore
+## Structure
+```
+sql/schema.sql            all 8 tables + sample staff and patients
+src/Main.java             Main menu
+src/database/             DatabaseConnection (reusable JDBC connection)
+src/models/               Person, Patient, Staff, Doctor, Therapist, Nurse, MedicalAssessment,
+                          LabTest, Vitals, TherapySession, MedicationRecord, DischargePlan
+src/dao/                  PatientDAO, StaffDAO, MedicalAssessmentDAO, DashboardDAO
+                          BaseDAO (shared JDBC code) + LabTestDAO, VitalsDAO,
+                          TherapySessionDAO, MedicationDAO, DischargePlanDAO
+src/menus/                one console menu per module + MenuSupport (shared prompts)
+src/util/InputHelper.java Safe console input (re-asks on invalid input)
+src/util/Authorization    "update when authorized" rule shared by all modules
+test/IntegrationTest.java 44 checks of every DAO against a real database
 ```
 
-The structure may be refined during implementation as the project develops.
+## Swing dashboard (MainGui)
+```
+src/MainGui.java              starts the GUI (Main.java still starts the console version)
+src/ui/DashboardFrame.java    window: header, sidebar, CardLayout screens, status bar
+src/ui/HomePanel.java         counts, today's assessments, upcoming follow-ups
+src/ui/PatientPanel.java      search / table / form: register, update, delete
+src/ui/StaffPanel.java        + role filter, "Show duties" (polymorphism)
+src/ui/AssessmentPanel.java   patient / staff / date filters, record, authorized update
+src/ui/ModulePanel.java       shared base for the module 4-8 screens (layout, filters, combos,
+                              authorization dialog); each screen only adds its fields and queries
+src/ui/LabTestPanel.java      filter by patient -> assessment -> status; record; authorized update
+src/ui/VitalsPanel.java       filters, "Latest for patient", alerts shown in red
+src/ui/TherapyPanel.java      filters + total therapy time for the selected patient
+src/ui/MedicationPanel.java   name search + patient/staff filters; authorized update
+src/ui/DischargePanel.java    plans, optional discharge/follow-up dates, upcoming follow-ups
+src/ui/common/OptionalDatePicker.java  "Set" checkbox + date, for dates that may be empty
+src/ui/Refreshable.java       each screen reloads when opened
+src/ui/tables/ListTableModel  one generic JTable model for all screens
+src/ui/common/UiHelper.java   colours, form layout, date spinners, background DB calls
+src/dao/DashboardDAO.java     counts for the home screen
+```
+- Every DAO call runs in a `SwingWorker` (`UiHelper.runAsync`), so the window never freezes.
+- Validation messages come straight from the model setters and show in red under the form.
+- Vitals and therapy sessions are read-only once saved (the spec has no update for them);
+  "New reading" / "New session" starts a fresh form.
+- Updates that need authorization ask "Who is making this change?" (owner or a Doctor).
+- Hover over a table cell to see its full text.
+- Optional: put `flatlaf-3.x.jar` in `lib/` for a more modern look; otherwise Nimbus is used.
 
+Run the GUI:
+```
+javac -d out $(find src -name "*.java")
+java -cp "out:lib/*" -Ddb.password=YOURPASS MainGui
+```
 
-## 5. Team Structure and Work Division
+## Setup
+1. Run the schema: `mysql -u root -p < sql/schema.sql`
+2. Put `mysql-connector-j-x.x.x.jar` in a `lib/` folder (download from dev.mysql.com or Maven Central).
+3. Compile and run (Linux/macOS; on Windows replace `:` with `;`):
+```
+javac -d out $(find src -name "*.java")
+java -cp "out:lib/*" -Ddb.user=root -Ddb.password=YOURPASS Main
+```
+In an IDE (IntelliJ/Eclipse/NetBeans), add the connector jar as a library and set the
+password in `DatabaseConnection.java` or pass `-Ddb.password=...` as a VM option.
 
-| Team | Members | Assigned Modules / Responsibilities |
-|---|---|---|
-| Team 1 | Member 1 & Member 2 | Patient Management and Staff Management |
-| Team 2 | Member 3 & Member 4 | Medical Assessment and Laboratory Test Management |
-| Team 3 | Member 5 & Member 6 | Vitals Management and Therapy Session Management |
-| Team 4 | Member 7 & Member 8 | Medication Management and Discharge & Aftercare |
-| Team 5 | Member 9 & Member 10 | Database Setup, JDBC Connectivity, Main Menu, System Integration and Testing |
+## Business rules
+- **Delete patient / remove staff "when permitted"**: refused if they have any linked
+  clinical records in any module (also enforced by the foreign keys), and requires y/n confirmation.
+- **Who can do what** (methods on Staff, overridden per role):
 
-### Team Responsibilities
+  | Action | Doctor | Nurse | Therapist | Other roles |
+  |---|---|---|---|---|
+  | Conduct assessment | yes | yes | yes | no |
+  | Record vitals | yes | yes | no | no |
+  | Conduct therapy session | no | no | yes | no |
+  | Record medication | yes | yes | no | no |
 
-**Team 1: Patient and Staff Management**
-- Develop Patient and Staff-related model classes.
-- Implement patient and staff management operations.
-- Establish the foundational Person class and inheritance structure.
+- **"Update when authorized"** (assessments, lab tests, medication): the staff member who
+  owns the record, or any Doctor (`util.Authorization`). A lab test's owner is whoever
+  conducted its assessment.
+- **Lab tests** must belong to an existing assessment; an empty result means "Pending".
+- **Vitals**: impossible values are rejected (e.g. temperature outside 30-45 C, systolic not above
+  diastolic). Readings outside normal adult ranges are saved but flagged as alerts.
+- **Therapy**: duration 5-480 minutes, sessions can't be in the future; total time is a SQL SUM.
+- **Medication**: dosage must contain an amount ("500 mg", "2 tablets").
+- **Discharge plans**: discharge and follow-up dates are optional (Enter keeps, "-" clears), but a
+  follow-up can't be before discharge. Status is In treatment / Discharge planned / Discharged.
+- **Record assessment**: patient and staff must exist; the staff member must be a
+  Doctor, Therapist or Nurse (a Receptionist cannot conduct one).
+- **Update assessment "when authorized"**: only the staff member who conducted it, or a Doctor.
+- **Validation**: names are letters only; contact is 10-15 digits (spaces/dashes are stripped);
+  gender is MALE/FEMALE/OTHER (M/F/O accepted); date of birth cannot be in the future;
+  assessment notes and diagnosis are required.
 
-**Team 2: Medical Assessment and Laboratory Tests**
-- Develop assessment and laboratory test classes.
-- Implement assessment and test record management.
-- Establish relationships with existing patient and staff records.
+## Automated test
+After loading a fresh `sql/schema.sql`:
+```
+javac -d out $(find src -name "*.java") && javac -cp out -d out test/IntegrationTest.java
+java -cp "out:lib/*" -Ddb.password=YOURPASS IntegrationTest
+```
+Expected last line: `44 passed, 0 failed`.
 
-**Team 3: Vitals and Therapy**
-- Develop Vitals and TherapySession classes.
-- Implement recording and retrieval operations.
-- Implement calculations such as total therapy time.
-
-**Team 4: Medication and Aftercare**
-- Develop Medication and AftercarePlan classes.
-- Implement medication record management.
-- Implement discharge planning and follow-up functionality.
-
-**Team 5: Database, Integration and Testing**
-- Establish the MySQL database and database connection.
-- Implement the reusable JDBC connection component.
-- Develop the main application menu and navigation.
-- Coordinate the integration of all modules.
-- Assist with system-wide validation, testing, and debugging.
-
-All members are expected to participate in project planning, code reviews, integration, testing, and documentation.
-
----
-
-**Project:** Rehabilitation Centre Management System (RCMS)  
-**Programming Language:** Java  
-**Database:** MySQL  
-**Connectivity:** JDBC  
-**Application Type:** Console-Based  
-**Course Focus:** Object-Oriented Programming (OOP)
+## Test checklist (valid + invalid input)
+| Operation | Valid test | Invalid test | Confirm in MySQL |
+|---|---|---|---|
+| Register patient | Brian Mwangi, M, 1990-04-12, 0712345678 | name "R2D2", contact "12345", DOB tomorrow | `SELECT * FROM PATIENT;` |
+| Search patient | ID 1; name "mwa"; contact "0712" | ID "abc", ID 999 | — |
+| Update patient | change contact | invalid gender "x" | row changed |
+| Delete patient | patient with no assessments | patient with assessments | row gone / still there |
+| Register staff | role "doctor" → stored "Doctor" | empty role | `SELECT * FROM STAFF;` |
+| Staff by role | "nurse" | "pilot" (no results) | — |
+| Record assessment | patient 1, staff 1 | staff = Receptionist, patient 999, empty notes | `SELECT * FROM MEDICAL_ASSESSMENT;` |
+| Search by date | today's date | "24/11/2026" (wrong format) | — |
+| Update assessment | as author or Doctor | as a Nurse who isn't the author | row changed / unchanged |
+| Record lab test | under assessment 1, result empty (Pending) | assessment 999 | `SELECT * FROM LAB_TESTS;` |
+| Update lab result | as the assessor or a Doctor | as a Therapist who isn't the assessor | RESULT changed / unchanged |
+| Record vitals | nurse, 36.8 / 72 / 16 / 5.5 / 120 / 80 | receptionist; temp "abc"; BP 80/90 | `SELECT * FROM VITALS;` |
+| Latest vitals | patient with 2+ readings | patient with none | newest row shown |
+| Record therapy | therapist, 45 min | nurse as therapist; 2 minutes; future date | `SELECT * FROM THERAPY_SESSION;` |
+| Total therapy time | patient with sessions | patient with none (0 min) | `SELECT SUM(DURATION_MINUTES) ...` |
+| Record medication | Amoxicillin, 500 mg, Twice daily | dosage "some"; therapist as responsible | `SELECT * FROM MEDICATION_RECORD;` |
+| Search medication | "amox" | "zzz" (no results) | - |
+| Create plan | goals, instructions, contact, no dates | contact phone "123" | `SELECT * FROM DISCHARGE_AFTERCARE_PLAN;` |
+| Plan dates | discharge today, follow-up in 2 weeks | follow-up before discharge | dates changed / unchanged |
+| Upcoming follow-ups | after setting a future follow-up | - | soonest first |

@@ -1,6 +1,8 @@
 package util;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 import java.util.function.Consumer;
@@ -11,6 +13,7 @@ import java.util.function.Consumer;
  */
 public final class InputHelper {
     private static final Scanner SC = new Scanner(System.in);
+    private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private InputHelper() { }
 
@@ -79,6 +82,51 @@ public final class InputHelper {
             } catch (DateTimeParseException e) {
                 System.out.println("  ! Use the format YYYY-MM-DD, e.g. 2026-11-24.");
             }
+        }
+    }
+
+    /** Date and time; Enter = now. */
+    public static LocalDateTime readDateTime(String prompt) {
+        while (true) {
+            String s = readLine(prompt + " (YYYY-MM-DD HH:MM, Enter = now): ");
+            if (s.isEmpty()) return LocalDateTime.now().withSecond(0).withNano(0);
+            try {
+                return LocalDateTime.parse(s, DATE_TIME);
+            } catch (DateTimeParseException e) {
+                System.out.println("  ! Use the format YYYY-MM-DD HH:MM, e.g. 2026-11-24 14:30.");
+            }
+        }
+    }
+
+    /** Optional date: Enter keeps the current value, "-" clears it. */
+    public static LocalDate readNullableDate(String prompt, LocalDate current) {
+        while (true) {
+            String s = readLine(prompt + " (YYYY-MM-DD, Enter = keep, - = clear) ["
+                    + (current == null ? "not set" : current) + "]: ");
+            if (s.isEmpty()) return current;
+            if (s.equals("-")) return null;
+            try {
+                return LocalDate.parse(s);
+            } catch (DateTimeParseException e) {
+                System.out.println("  ! Use the format YYYY-MM-DD, e.g. 2026-11-24.");
+            }
+        }
+    }
+
+    /** Number parsing with a readable message (used inside readValid lambdas). */
+    public static double parseDouble(String s, String field) {
+        try {
+            return Double.parseDouble(s.trim());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(field + " must be a number, e.g. 36.8.");
+        }
+    }
+
+    public static int parseInt(String s, String field) {
+        try {
+            return Integer.parseInt(s.trim());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(field + " must be a whole number.");
         }
     }
 

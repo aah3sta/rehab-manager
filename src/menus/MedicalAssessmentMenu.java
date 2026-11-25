@@ -116,9 +116,7 @@ public class MedicalAssessmentMenu {
 
         Staff editor = askForStaff("Your staff ID (for authorization): ");
         if (editor == null) return;
-        boolean isAuthor = editor.getId() == a.getStaffId();
-        boolean isDoctor = editor.getRole().equalsIgnoreCase("Doctor");
-        if (!isAuthor && !isDoctor) {
+        if (!util.Authorization.canEdit(editor, a.getStaffId())) {
             System.out.println("Not authorized: only the staff member who conducted this assessment "
                     + "or a Doctor can update it.");
             return;
