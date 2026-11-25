@@ -22,10 +22,18 @@ test/IntegrationTest.java 44 checks of every DAO against a real database
 ```
 src/MainGui.java              starts the GUI (Main.java still starts the console version)
 src/ui/DashboardFrame.java    window: header, sidebar, CardLayout screens, status bar
-src/ui/HomePanel.java         counts + today's assessments
+src/ui/HomePanel.java         counts, today's assessments, upcoming follow-ups
 src/ui/PatientPanel.java      search / table / form: register, update, delete
 src/ui/StaffPanel.java        + role filter, "Show duties" (polymorphism)
 src/ui/AssessmentPanel.java   patient / staff / date filters, record, authorized update
+src/ui/ModulePanel.java       shared base for the module 4-8 screens (layout, filters, combos,
+                              authorization dialog); each screen only adds its fields and queries
+src/ui/LabTestPanel.java      filter by patient -> assessment -> status; record; authorized update
+src/ui/VitalsPanel.java       filters, "Latest for patient", alerts shown in red
+src/ui/TherapyPanel.java      filters + total therapy time for the selected patient
+src/ui/MedicationPanel.java   name search + patient/staff filters; authorized update
+src/ui/DischargePanel.java    plans, optional discharge/follow-up dates, upcoming follow-ups
+src/ui/common/OptionalDatePicker.java  "Set" checkbox + date, for dates that may be empty
 src/ui/Refreshable.java       each screen reloads when opened
 src/ui/tables/ListTableModel  one generic JTable model for all screens
 src/ui/common/UiHelper.java   colours, form layout, date spinners, background DB calls
@@ -33,6 +41,10 @@ src/dao/DashboardDAO.java     counts for the home screen
 ```
 - Every DAO call runs in a `SwingWorker` (`UiHelper.runAsync`), so the window never freezes.
 - Validation messages come straight from the model setters and show in red under the form.
+- Vitals and therapy sessions are read-only once saved (the spec has no update for them);
+  "New reading" / "New session" starts a fresh form.
+- Updates that need authorization ask "Who is making this change?" (owner or a Doctor).
+- Hover over a table cell to see its full text.
 - Optional: put `flatlaf-3.x.jar` in `lib/` for a more modern look; otherwise Nimbus is used.
 
 Run the GUI:

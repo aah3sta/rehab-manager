@@ -46,6 +46,11 @@ public class TherapySessionDAO extends BaseDAO<TherapySession> {
                 patientId);
     }
 
+    /** Any argument may be null (= no filter). Used by the GUI. */
+    public List<TherapySession> search(Long patientId, Long staffId, LocalDate date) throws SQLException {
+        return filter("THERAPY_SESSION", "SESSION_DATE", patientId, staffId, date);
+    }
+
     @Override
     protected TherapySession map(ResultSet rs) throws SQLException {
         return new TherapySession(rs.getLong("SESSION_ID"), rs.getLong("PATIENT_ID"), rs.getLong("STAFF_ID"),

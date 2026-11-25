@@ -48,6 +48,11 @@ public class VitalsDAO extends BaseDAO<Vitals> {
         return queryList("SELECT * FROM VITALS ORDER BY RECORDED_AT DESC");
     }
 
+    /** Any argument may be null (= no filter). Used by the GUI. */
+    public List<Vitals> search(Long patientId, Long staffId, LocalDate date) throws SQLException {
+        return filter("VITALS", "RECORDED_AT", patientId, staffId, date);
+    }
+
     @Override
     protected Vitals map(ResultSet rs) throws SQLException {
         return new Vitals(rs.getLong("VITALS_ID"), rs.getLong("PATIENT_ID"), rs.getLong("STAFF_ID"),

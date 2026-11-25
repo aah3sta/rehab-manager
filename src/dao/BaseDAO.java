@@ -77,6 +77,25 @@ public abstract class BaseDAO<T> {
         }
     }
 
+    /**
+     * Shared "filter by patient / staff / day" query for the GUI screens.
+     * Table and column names come from the subclass (fixed strings), never from user input.
+     */
+    protected List<T> filter(String table, String dateColumn, Long patientId, Long staffId, LocalDate day)
+            throws SQLException {
+        StringBuilder sql = new StringBuilder("SELECT * FROM " + table + " WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+        if (patientId != null) { sql.append(" AND PATIENT_ID = ?"); params.add(patientId); }
+        if (staffId != null)   { sql.append(" AND STAFF_ID = ?");   params.add(staffId); }
+        if (day != null) {
+            sql.append(" AND ").append(dateColumn).append(" >= ? AND ").append(dateColumn).append(" < ?");
+            params.add(day.atStartOfDay());
+            params.add(day.plusDays(1).atStartOfDay());
+        }
+        sql.append(" ORDER BY ").append(dateColumn).append(" DESC");
+        return queryList(sql.toString(), params.toArray());
+    }
+
     // ---- small helpers for map() ----
 
     protected static LocalDateTime toDateTime(Timestamp ts) {

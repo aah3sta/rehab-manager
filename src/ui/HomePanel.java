@@ -4,6 +4,8 @@ import dao.DashboardDAO;
 import dao.MedicalAssessmentDAO;
 import dao.PatientDAO;
 import dao.StaffDAO;
+import dao.DischargePlanDAO;
+import models.DischargePlan;
 import models.MedicalAssessment;
 import models.Patient;
 import models.Staff;
@@ -25,11 +27,23 @@ public class HomePanel extends JPanel implements Refreshable {
     private final MedicalAssessmentDAO assessmentDAO = new MedicalAssessmentDAO();
     private final PatientDAO patientDAO = new PatientDAO();
     private final StaffDAO staffDAO = new StaffDAO();
+    private final DischargePlanDAO planDAO = new DischargePlanDAO();
 
     private final JLabel patientsValue = statValue();
     private final JLabel staffValue = statValue();
     private final JLabel assessmentsValue = statValue();
     private final JLabel todayValue = statValue();
+    private final JLabel followUpValue = statValue();
+
+    private final ListTableModel<DischargePlan> followUpModel = new ListTableModel<>(
+            new String[]{"Follow-up", "Patient", "Emergency relapse contact"},
+            (p, col) -> {
+                switch (col) {
+                    case 0: return p.getFollowUpDate().toString();
+                    case 1: return nameOf(p.getPatientId(), true);
+                    default: return p.getEmergencyContactName() + ", " + p.getEmergencyContactPhone();
+                }
+            });
 
     private final ListTableModel<MedicalAssessment> todayModel = new ListTableModel<>(
             new String[]{"Time", "Patient", "Conducted by", "Diagnosis"},
@@ -55,12 +69,13 @@ public class HomePanel extends JPanel implements Refreshable {
         titles.add(UiHelper.heading("Dashboard"));
         titles.add(UiHelper.muted("Overview for " + LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE d MMMM yyyy"))));
 
-        JPanel stats = new JPanel(new GridLayout(1, 4, 12, 0));
+        JPanel stats = new JPanel(new GridLayout(1, 5, 12, 0));
         stats.setOpaque(false);
         stats.add(statCard("Patients", patientsValue));
         stats.add(statCard("Staff", staffValue));
         stats.add(statCard("Assessments", assessmentsValue));
         stats.add(statCard("Assessments today", todayValue));
+        stats.add(statCard("Upcoming follow-ups", followUpValue));
 
         JPanel top = new JPanel(new BorderLayout(0, 16));
         top.setOpaque(false);
@@ -68,11 +83,19 @@ public class HomePanel extends JPanel implements Refreshable {
         top.add(stats, BorderLayout.CENTER);
         add(top, BorderLayout.NORTH);
 
-        JPanel today = new JPanel(new BorderLayout(0, 8));
-        today.setOpaque(false);
-        today.add(UiHelper.subheading("Today's assessments"), BorderLayout.NORTH);
-        today.add(UiHelper.scroll(UiHelper.table(todayModel)), BorderLayout.CENTER);
-        add(today, BorderLayout.CENTER);
+        JPanel tables = new JPanel(new GridLayout(1, 2, 16, 0));
+        tables.setOpaque(false);
+        tables.add(section("Today's assessments", UiHelper.table(todayModel)));
+        tables.add(section("Upcoming follow-ups", UiHelper.table(followUpModel)));
+        add(tables, BorderLayout.CENTER);
+    }
+
+    private static JPanel section(String title, JTable table) {
+        JPanel p = new JPanel(new BorderLayout(0, 8));
+        p.setOpaque(false);
+        p.add(UiHelper.subheading(title), BorderLayout.NORTH);
+        p.add(UiHelper.scroll(table), BorderLayout.CENTER);
+        return p;
     }
 
     private static JLabel statValue() {
@@ -103,17 +126,20 @@ public class HomePanel extends JPanel implements Refreshable {
             s.today = assessmentDAO.search(null, null, today);
             s.patientList = patientDAO.getAll();
             s.staffList = staffDAO.getAll();
+            s.followUps = planDAO.findUpcomingFollowUps();
             return s;
         }, s -> {
             patientsValue.setText(String.valueOf(s.patients));
             staffValue.setText(String.valueOf(s.staff));
             assessmentsValue.setText(String.valueOf(s.assessments));
             todayValue.setText(String.valueOf(s.today.size()));
+            followUpValue.setText(String.valueOf(s.followUps.size()));
             patientNames.clear();
             for (Patient p : s.patientList) patientNames.put(p.getId(), p.getFullName());
             staffNames.clear();
             for (Staff st : s.staffList) staffNames.put(st.getId(), st.getFullName());
             todayModel.setRows(s.today);
+            followUpModel.setRows(s.followUps);
             UiHelper.status("Dashboard updated");
         });
     }
@@ -123,6 +149,7 @@ public class HomePanel extends JPanel implements Refreshable {
         List<MedicalAssessment> today;
         List<Patient> patientList;
         List<Staff> staffList;
+        List<DischargePlan> followUps;
     }
 
     private String nameOf(long id, boolean patient) {

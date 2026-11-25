@@ -151,7 +151,16 @@ public final class UiHelper {
 
     /** Standard table look: taller rows, single selection, sortable columns. */
     public static JTable table(javax.swing.table.TableModel model) {
-        JTable t = new JTable(model);
+        JTable t = new JTable(model) {
+            /** Hovering a cell shows its full text, in case the column is too narrow. */
+            @Override
+            public String getToolTipText(java.awt.event.MouseEvent e) {
+                int row = rowAtPoint(e.getPoint()), col = columnAtPoint(e.getPoint());
+                if (row < 0 || col < 0) return null;
+                Object v = getValueAt(row, col);
+                return v == null || v.toString().isEmpty() ? null : v.toString();
+            }
+        };
         t.setRowHeight(28);
         t.setAutoCreateRowSorter(true);
         t.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -171,6 +180,13 @@ public final class UiHelper {
         sp.setPreferredSize(new Dimension(200, h));
         sp.setMinimumSize(new Dimension(100, h));
         return sp;
+    }
+
+    /** Preferred column widths, in order; columns share any extra space in this ratio. */
+    public static void columnWidths(JTable table, int... widths) {
+        for (int i = 0; i < widths.length && i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
+        }
     }
 
     /** Keeps a short numeric ID column narrow. */
@@ -255,6 +271,38 @@ public final class UiHelper {
 
     public static void setDate(JSpinner spinner, LocalDate date) {
         spinner.setValue(Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+    }
+
+    public static JSpinner dateTimeSpinner() {
+        JSpinner s = new JSpinner(new SpinnerDateModel());
+        s.setEditor(new JSpinner.DateEditor(s, "yyyy-MM-dd HH:mm"));
+        return s;
+    }
+
+    public static java.time.LocalDateTime getDateTime(JSpinner spinner) {
+        Date d = (Date) spinner.getValue();
+        return d.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().withSecond(0).withNano(0);
+    }
+
+    public static void setDateTime(JSpinner spinner, java.time.LocalDateTime t) {
+        spinner.setValue(Date.from(t.atZone(ZoneId.systemDefault()).toInstant()));
+    }
+
+    /** Small "label above field" block, for putting two fields side by side. */
+    public static JPanel labeled(String label, JComponent field) {
+        JPanel p = new JPanel(new BorderLayout(0, 4));
+        p.setOpaque(false);
+        p.add(muted(label), BorderLayout.NORTH);
+        p.add(field, BorderLayout.CENTER);
+        return p;
+    }
+
+    public static JPanel pair(JComponent left, JComponent right) {
+        JPanel p = new JPanel(new GridLayout(1, 2, 10, 0));
+        p.setOpaque(false);
+        p.add(left);
+        p.add(right);
+        return p;
     }
 
     // ---------- combos ----------

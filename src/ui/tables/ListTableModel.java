@@ -12,11 +12,16 @@ import java.util.function.BiFunction;
  */
 public class ListTableModel<T> extends AbstractTableModel {
     private final String[] columns;
-    private final BiFunction<T, Integer, Object> cellValue;
+    private BiFunction<T, Integer, Object> cellValue;
     private List<T> rows = new ArrayList<>();
 
     public ListTableModel(String[] columns, BiFunction<T, Integer, Object> cellValue) {
         this.columns = columns;
+        this.cellValue = cellValue;
+    }
+
+    /** For screens whose cell function needs fields that exist only after construction. */
+    public void setCellValue(BiFunction<T, Integer, Object> cellValue) {
         this.cellValue = cellValue;
     }
 

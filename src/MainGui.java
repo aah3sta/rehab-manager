@@ -29,10 +29,15 @@ public class MainGui {
         });
     }
 
-    /** Uses FlatLaf if its jar is in lib/, otherwise Nimbus, otherwise the default. */
+    /** Uses FlatDarkLaf if its jar is in lib/, otherwise Nimbus, otherwise the default. */
     private static void installLookAndFeel() {
         try {
-            UIManager.setLookAndFeel("com.formdev.flatlaf.FlatLightLaf");
+            UIManager.setLookAndFeel("com.formdev.flatlaf.FlatDarkLaf");
+            UIManager.put("Button.arc", 8);
+            UIManager.put("Component.arc", 8);
+            UIManager.put("TextComponent.arc", 6);
+            UIManager.put("Table.rowHeight", 28);
+            UIManager.put("Table.showHorizontalLines", true);
             return;
         } catch (Exception ignored) { }
         try {

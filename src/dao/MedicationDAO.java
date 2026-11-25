@@ -50,6 +50,15 @@ public class MedicationDAO extends BaseDAO<MedicationRecord> {
                 m.getMedicationName(), m.getDosage(), m.getFrequency(), m.getInstructions(), m.getRecordId());
     }
 
+    /** Any argument may be null/empty (= no filter). Used by the GUI. */
+    public List<MedicationRecord> search(Long patientId, Long staffId, String name) throws SQLException {
+        List<MedicationRecord> list = filter("MEDICATION_RECORD", "RECORDED_DATE", patientId, staffId, null);
+        if (name == null || name.trim().isEmpty()) return list;
+        String needle = name.trim().toLowerCase();
+        list.removeIf(m -> !m.getMedicationName().toLowerCase().contains(needle));
+        return list;
+    }
+
     @Override
     protected MedicationRecord map(ResultSet rs) throws SQLException {
         return new MedicationRecord(rs.getLong("RECORD_ID"), rs.getLong("PATIENT_ID"), rs.getLong("STAFF_ID"),
